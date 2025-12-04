@@ -1,0 +1,36 @@
+{
+  "name": "clearme-ai-coach",
+  "version": "1.0.0",
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-navigation/bottom-tabs": "^7.2.2",
+    "@react-navigation/native": "^7.0.13",
+    "@react-navigation/native-stack": "^7.1.8",
+    "axios": "^1.7.9",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.2.3",
+    "expo": "~54.0.0",
+    "expo-av": "~16.0.7",
+    "expo-clipboard": "~8.0.7",
+    "expo-linear-gradient": "~15.0.7",
+    "expo-speech": "~14.0.7",
+    "expo-status-bar": "~3.0.8",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "babel-preset-expo": "^54.0.7"
+  },
+  "private": true
+}
