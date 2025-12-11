@@ -83,25 +83,6 @@ npx expo start
 # Scan QR code with Expo Go app
 ```
 
-### Run with Docker
-
-Build and start the app in Docker (web mode by default):
-
-```bash
-docker compose build
-docker compose up
-```
-
-Open http://localhost:8081 in your browser.
-
-To run the Expo dev server instead of web, use:
-
-```bash
-docker compose run --service-ports clearme npm start
-```
-
-Environment variables are read from `.env`. Ensure your Firebase keys are present as documented in FIREBASE_SETUP.md.
-
 ### First-Time Setup
 
 1. **Add API Key**
