@@ -32,11 +32,12 @@ const firebaseConfig = {
 };
 ```
 
-## 4. (Optional) Secure Keys
+## 4. Secure Keys (Completed)
 
-For a production app, it is recommended to use environment variables.
-1. Add your keys to `.env` file (create it if it doesn't exist).
-2. Update `app.config.js` to load these values.
-3. Update `src/config/firebase.js` to read from `Constants.expoConfig.extra`.
+I have already configured the app to use environment variables for security.
 
-For now, directly replacing the values in `src/config/firebase.js` will work for development.
+1.  Your keys are stored in `.env`.
+2.  `app.config.js` loads these keys into `extra`.
+3.  `src/config/firebase.js` reads them from `Constants.expoConfig.extra`.
+
+**Important:** Do not commit `.env` to version control if you are using a public repository. Add it to your `.gitignore`.
