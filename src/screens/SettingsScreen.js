@@ -8,6 +8,7 @@ import Card from '../components/Card';
 import { getSettings, saveSettings, saveApiKey, getApiKey } from '../services/storageService';
 import { colors, gradients } from '../theme/colors';
 import { spacing, borderRadius } from '../theme/spacing';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * Settings Screen - Basic Configuration
@@ -18,6 +19,7 @@ const SettingsScreen = ({ navigation }) => {
   const [language, setLanguage] = useState('en');
   const [notifications, setNotifications] = useState(true);
   const [loading, setLoading] = useState(false);
+  const { logout } = useAuth();
 
   useEffect(() => {
     loadSettings();
@@ -56,6 +58,27 @@ const SettingsScreen = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Logout', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout');
+            }
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -216,6 +239,16 @@ const SettingsScreen = ({ navigation }) => {
             icon={<Ionicons name="checkmark" size={20} color="#FFFFFF" />}
             style={styles.saveButton}
           />
+
+          <Button
+            title="Logout"
+            onPress={handleLogout}
+            variant="outline"
+            fullWidth
+            icon={<Ionicons name="log-out-outline" size={20} color={colors.error || '#EF4444'} />}
+            style={styles.logoutButton}
+            textStyle={{ color: colors.error || '#EF4444' }}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -338,6 +371,11 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: spacing.lg,
+  },
+  logoutButton: {
+    marginTop: spacing.md,
+    borderColor: colors.error || '#EF4444',
+    marginBottom: spacing.xl,
   },
 });
 

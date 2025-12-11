@@ -10,7 +10,7 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, resetPassword } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -25,6 +25,20 @@ const LoginScreen = ({ navigation }) => {
       Alert.alert('Login Error', error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email address to reset password');
+      return;
+    }
+
+    try {
+      await resetPassword(email);
+      Alert.alert('Success', 'Password reset email sent! Check your inbox.');
+    } catch (error) {
+      Alert.alert('Error', error.message);
     }
   };
 
@@ -64,6 +78,13 @@ const LoginScreen = ({ navigation }) => {
               secureTextEntry
             />
           </View>
+
+          <TouchableOpacity 
+            style={styles.forgotPasswordButton} 
+            onPress={handleForgotPassword}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.button} 
@@ -133,6 +154,15 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.text,
     fontSize: 16,
+  },
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    marginBottom: spacing.md,
+  },
+  forgotPasswordText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '500',
   },
   button: {
     backgroundColor: colors.primary,
