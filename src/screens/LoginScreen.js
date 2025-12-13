@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import { Ionicons } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import Constants from 'expo-constants';
+import { auth } from '../config/firebase';
+import { GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
+
+// Complete auth session on web to close the popup/tab
+WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -12,6 +20,34 @@ const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const { login, resetPassword } = useAuth();
+
+  // Configure Google Auth Request
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: Constants?.expoConfig?.extra?.GOOGLE_EXPO_CLIENT_ID,
+    androidClientId: Constants?.expoConfig?.extra?.GOOGLE_ANDROID_CLIENT_ID,
+    iosClientId: Constants?.expoConfig?.extra?.GOOGLE_IOS_CLIENT_ID,
+    webClientId: Constants?.expoConfig?.extra?.GOOGLE_WEB_CLIENT_ID,
+  });
+
+  useEffect(() => {
+    const handleGoogleResponse = async () => {
+      if (response?.type === 'success') {
+        try {
+          const { idToken, accessToken } = response.authentication || {};
+          if (!idToken && Platform.OS !== 'web') {
+            throw new Error('Missing Google ID token');
+          }
+          const credential = GoogleAuthProvider.credential(idToken, accessToken);
+          await signInWithCredential(auth, credential);
+        } catch (error) {
+          Alert.alert('Google Sign-In Error', error.message);
+        }
+      } else if (response?.type === 'error') {
+        Alert.alert('Google Sign-In Error', 'Authentication failed.');
+      }
+    };
+    handleGoogleResponse();
+  }, [response]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -79,6 +115,21 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      if (Platform.OS === 'web') {
+        // On web, use Firebase popup flow
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        return;
+      }
+      // On native, use Expo Auth Session
+      await promptAsync();
+    } catch (error) {
+      Alert.alert('Google Sign-In Error', error.message);
+    }
+  };
+
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -117,11 +168,10 @@ const LoginScreen = ({ navigation }) => {
           </View>
 
           <TouchableOpacity 
-            style={[styles.forgotPasswordButton, forgotLoading && styles.disabledLink]}
-            onPress={handleForgotPassword}
-            disabled={forgotLoading}
+            style={styles.forgotPasswordButton}
+            onPress={() => navigation.navigate('ForgotPassword')}
           >
-            <Text style={styles.forgotPasswordText}>{forgotLoading ? 'Sending…' : 'Forgot Password?'}</Text>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -134,6 +184,14 @@ const LoginScreen = ({ navigation }) => {
             ) : (
               <Text style={styles.buttonText}>Login</Text>
             )}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.button, styles.googleButton]}
+            onPress={handleGoogleLogin}
+            disabled={!request}
+          >
+            <Text style={styles.buttonText}>Login with Google</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -214,6 +272,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
+  },
+  googleButton: {
+    backgroundColor: '#4285F4',
   },
   buttonText: {
     color: '#fff',

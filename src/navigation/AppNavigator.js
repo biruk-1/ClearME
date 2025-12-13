@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 // Screens
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ImproveWritingScreen from '../screens/ImproveWritingScreen';
 import ExtractPointScreen from '../screens/ExtractPointScreen';
@@ -99,6 +100,7 @@ export default function AppNavigator() {
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Signup" component={SignupScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           </>
         )}
       </Stack.Navigator>
