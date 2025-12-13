@@ -22,15 +22,11 @@ jobs:
       - name: Update npm
         run: npm i -g npm@11
 
-      - name: Install dependencies
+      - name: Install dependencies (strict)
         env:
           npm_config_fund: false
           npm_config_audit: false
-        run: |
-          if [ -f yarn.lock ]; then yarn install --frozen-lockfile --non-interactive; 
-          elif [ -f package-lock.json ]; then npm ci || npm install --no-audit --no-fund --legacy-peer-deps; 
-          elif [ -f pnpm-lock.yaml ]; then npm i -g pnpm && pnpm install --frozen-lockfile; 
-          else npm install --no-audit --no-fund --legacy-peer-deps; fi
+        run: npm ci
 
       - name: Lint and test
         run: |

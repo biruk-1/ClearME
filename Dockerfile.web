@@ -12,15 +12,12 @@ RUN npm i -g npm@11 && corepack enable || true
 # Non-interactive builds
 ENV CI=true EXPO_NO_TELEMETRY=1
 
-# Copy package manifests first for better layer caching
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+# Copy package manifests first for better layer caching (strict npm ci)
+COPY package.json package-lock.json* ./
 
 # Install deps (prefer yarn if lockfile exists) with robust npm fallback
 ENV npm_config_fund=false npm_config_audit=false
-RUN if [ -f yarn.lock ]; then yarn install --frozen-lockfile --non-interactive; \
-    elif [ -f package-lock.json ]; then npm ci || npm install --no-audit --no-fund --legacy-peer-deps; \
-    elif [ -f pnpm-lock.yaml ]; then npm i -g pnpm && pnpm install --frozen-lockfile; \
-    else npm install --no-audit --no-fund --legacy-peer-deps; fi
+RUN npm ci
 
 # Copy source
 COPY . .
