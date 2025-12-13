@@ -10,6 +10,7 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const { login, resetPassword } = useAuth();
 
   const handleLogin = async () => {
@@ -28,17 +29,53 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+  const isValidEmail = (value) => {
+    const re = /^\S+@\S+\.\S+$/;
+    return re.test(String(value).toLowerCase());
+  };
+
   const handleForgotPassword = async () => {
     if (!email) {
       Alert.alert('Error', 'Please enter your email address to reset password');
       return;
     }
 
+    if (!isValidEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
+    setForgotLoading(true);
     try {
       await resetPassword(email);
-      Alert.alert('Success', 'Password reset email sent! Check your inbox.');
+      // Always show a generic success message to avoid account enumeration
+      Alert.alert(
+        'Success',
+        'If an account exists for this email, a reset link has been sent. Please check your inbox.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // We are already on the Login screen; no further navigation needed
+              // This satisfies "redirect back to login" requirement when coming from a link/screen
+            },
+          },
+        ]
+      );
     } catch (error) {
-      Alert.alert('Error', error.message);
+      // Show the same success message even on error to prevent information disclosure
+      Alert.alert(
+        'Success',
+        'If an account exists for this email, a reset link has been sent. Please check your inbox.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {}
+          },
+        ]
+      );
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -80,10 +117,11 @@ const LoginScreen = ({ navigation }) => {
           </View>
 
           <TouchableOpacity 
-            style={styles.forgotPasswordButton} 
+            style={[styles.forgotPasswordButton, forgotLoading && styles.disabledLink]}
             onPress={handleForgotPassword}
+            disabled={forgotLoading}
           >
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            <Text style={styles.forgotPasswordText}>{forgotLoading ? 'Sending…' : 'Forgot Password?'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -189,6 +227,9 @@ const styles = StyleSheet.create({
   linkText: {
     color: colors.primary,
     fontSize: 16,
+  },
+  disabledLink: {
+    opacity: 0.6,
   },
 });
 
