@@ -1,12 +1,13 @@
 # Multi-stage Dockerfile for Expo web build served by Nginx
 
 # Stage 1: Build Expo web static files
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 # Install OS deps
 RUN apk add --no-cache python3 make g++
+RUN npm i -g npm@11 && corepack enable || true
 
 # Non-interactive builds
 ENV CI=true EXPO_NO_TELEMETRY=1
