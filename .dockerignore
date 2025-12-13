@@ -5,7 +5,7 @@ node_modules
 npm-debug.log
 yarn-error.log
 .DS_Store
-.env
+# Keep .env for Expo export build-time config
 .expo/web-build
 .expo/dist
 .dist
