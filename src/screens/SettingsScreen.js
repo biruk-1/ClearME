@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Alert, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Alert, Switch, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import TextInput from '../components/TextInput';
@@ -19,7 +19,7 @@ const SettingsScreen = ({ navigation }) => {
   const [language, setLanguage] = useState('en');
   const [notifications, setNotifications] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   useEffect(() => {
     loadSettings();
@@ -90,9 +90,17 @@ const SettingsScreen = ({ navigation }) => {
         style={styles.header}
       >
         <View style={styles.headerContent}>
-          <Ionicons name="settings-outline" size={32} color="#FFFFFF" />
-          <Text style={styles.title}>Settings</Text>
-          <Text style={styles.subtitle}>Customize your experience</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+            {user?.photoURL ? (
+              <Image source={{ uri: user.photoURL }} style={styles.avatar} />
+            ) : (
+              <Ionicons name="person-circle-outline" size={40} color="#FFFFFF" />
+            )}
+            <View>
+              <Text style={styles.title}>{user?.displayName || 'Settings'}</Text>
+              <Text style={styles.subtitle}>{user?.email || 'Customize your experience'}</Text>
+            </View>
+          </View>
         </View>
       </LinearGradient>
 
@@ -268,7 +276,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: borderRadius['2xl'],
   },
   headerContent: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   title: {
     fontSize: 28,
@@ -280,6 +288,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.9)',
     marginTop: spacing.xs,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.8)'
   },
   content: {
     flex: 1,
