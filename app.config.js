@@ -37,7 +37,9 @@ export default {
         {
           microphonePermission: "Allow ClearMe to access your microphone for voice clarity features."
         }
-      ]
+      ],
+      // Required for OAuth flows using Expo Auth Session
+      "expo-web-browser"
     ],
     extra: {
       // Grok (Groq) API Keys - tried in order, first working key is used
