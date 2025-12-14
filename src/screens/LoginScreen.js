@@ -21,33 +21,35 @@ const LoginScreen = ({ navigation }) => {
   const [forgotLoading, setForgotLoading] = useState(false);
   const { login, resetPassword } = useAuth();
 
-  // Configure Google Auth Request
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: Constants?.expoConfig?.extra?.GOOGLE_EXPO_CLIENT_ID,
-    androidClientId: Constants?.expoConfig?.extra?.GOOGLE_ANDROID_CLIENT_ID,
-    iosClientId: Constants?.expoConfig?.extra?.GOOGLE_IOS_CLIENT_ID,
-    webClientId: Constants?.expoConfig?.extra?.GOOGLE_WEB_CLIENT_ID,
-  });
+  // Configure Google Auth Request on native only (web uses Firebase popup)
+  let request = null, response = null, promptAsync = async () => {};
+  if (Platform.OS !== 'web') {
+    [request, response, promptAsync] = Google.useAuthRequest({
+      expoClientId: Constants?.expoConfig?.extra?.GOOGLE_EXPO_CLIENT_ID,
+      androidClientId: Constants?.expoConfig?.extra?.GOOGLE_ANDROID_CLIENT_ID,
+      iosClientId: Constants?.expoConfig?.extra?.GOOGLE_IOS_CLIENT_ID,
+    });
 
-  useEffect(() => {
-    const handleGoogleResponse = async () => {
-      if (response?.type === 'success') {
-        try {
-          const { idToken, accessToken } = response.authentication || {};
-          if (!idToken && Platform.OS !== 'web') {
-            throw new Error('Missing Google ID token');
+    useEffect(() => {
+      const handleGoogleResponse = async () => {
+        if (response?.type === 'success') {
+          try {
+            const { idToken, accessToken } = response.authentication || {};
+            if (!idToken) {
+              throw new Error('Missing Google ID token');
+            }
+            const credential = GoogleAuthProvider.credential(idToken, accessToken);
+            await signInWithCredential(auth, credential);
+          } catch (error) {
+            Alert.alert('Google Sign-In Error', error.message);
           }
-          const credential = GoogleAuthProvider.credential(idToken, accessToken);
-          await signInWithCredential(auth, credential);
-        } catch (error) {
-          Alert.alert('Google Sign-In Error', error.message);
+        } else if (response?.type === 'error') {
+          Alert.alert('Google Sign-In Error', 'Authentication failed.');
         }
-      } else if (response?.type === 'error') {
-        Alert.alert('Google Sign-In Error', 'Authentication failed.');
-      }
-    };
-    handleGoogleResponse();
-  }, [response]);
+      };
+      handleGoogleResponse();
+    }, [response]);
+  }
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -189,7 +191,7 @@ const LoginScreen = ({ navigation }) => {
           <TouchableOpacity 
             style={[styles.button, styles.googleButton]}
             onPress={handleGoogleLogin}
-            disabled={!request}
+            disabled={Platform.OS !== 'web' && !request}
           >
             <Text style={styles.buttonText}>Login with Google</Text>
           </TouchableOpacity>
