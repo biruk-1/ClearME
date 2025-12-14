@@ -1,15 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import FeatureCard from '../components/FeatureCard';
 import { colors, gradients } from '../theme/colors';
 import { spacing, borderRadius } from '../theme/spacing';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * Home Screen - Main landing page
  */
 const HomeScreen = ({ navigation }) => {
+  const { user } = useAuth();
   const features = [
     {
       id: 1,
@@ -54,12 +56,16 @@ const HomeScreen = ({ navigation }) => {
         style={styles.header}
       >
         <View style={styles.headerContent}>
-          <View>
-            <Text style={styles.greeting}>Welcome to</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.greeting}>Welcome{user?.displayName ? `, ${user.displayName}` : ''}</Text>
             <Text style={styles.title}>ClearMe</Text>
             <Text style={styles.subtitle}>AI Communication Coach</Text>
           </View>
-          <Ionicons name="chatbubbles" size={48} color="rgba(255, 255, 255, 0.9)" />
+          {user?.photoURL ? (
+            <Image source={{ uri: user.photoURL }} style={styles.avatar} />
+          ) : (
+            <Ionicons name="chatbubbles" size={48} color="rgba(255, 255, 255, 0.9)" />
+          )}
         </View>
       </LinearGradient>
 
@@ -145,6 +151,13 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.8)'
   },
   content: {
     flex: 1,
